@@ -1,12 +1,10 @@
 from time import time
-import numpy as np
 from pick import pick
 
 # Functions
 
 def f(x):
 	return eval(function_string)
-vf=np.vectorize(f)
 
 def LeftRiemannSums(j):
 	sum=0
@@ -31,11 +29,11 @@ def TrapezoidalSums(j):
 def MonteCarlo1(j,k): # j=number of slots, k=number of points per slot
 	in_dots=0
 	out_dots=0
-	space=np.linspace(start,end,j)
+	space=linspace(start,end,j)
 	y=vf(space)
 	for i in space:
 		for l in range(k):
-			if np.random.uniform(0.,max(y))<=f(i):
+			if random.uniform(0.,max(y))<=f(i):
 				in_dots+=1
 			else:
 				out_dots+=1
@@ -44,10 +42,10 @@ def MonteCarlo1(j,k): # j=number of slots, k=number of points per slot
 def MonteCarlo2(j,k=100):
 	in_d=0
 	out_d=0
-	h=max(vf(np.linspace(start,end,k)))
+	h=max(vf(linspace(start,end,k)))
 	p=0
 	for i in range(j):
-		p=[np.random.uniform(start,end),np.random.uniform(0,h)]
+		p=[random.uniform(start,end),np.random.uniform(0,h)]
 		if p[1]<=f(p[0]):
 			in_d+=1
 		else:
@@ -68,13 +66,14 @@ if (start==end):
 # Pick Method
 
 title = 'Select an Integration Method: '
-options = ['Riemman sums','Trapezoid Rule','Monte Carlo 1','Monte Carlo 2'] # Lagrange Polynomial Interpolation
+options = ['Riemman sums','Trapezoid Rule','Monte Carlo 1','Monte Carlo 2',"SymPy Symbolic Integration"] # Lagrange Polynomial Interpolation
 method, indexp = pick(options, title)
 print('Method Selected: %s'%(method))
 
 # Riemann sums
 
 if (method=='Riemman sums'):
+	from numpy import *
 	n=int(input('Number of partitions for the Riemann sums: '))
 	print('')
 	t1=time()
@@ -85,6 +84,7 @@ if (method=='Riemman sums'):
 # Trapezoid Rule
 
 if (method=='Trapezoid Rule'):
+	from numpy import *
 	n=int(input('Number of partitions for the Trapezoid Rule: '))
 	print('')
 	t1=time()
@@ -94,6 +94,8 @@ if (method=='Trapezoid Rule'):
 # Monte Carlo 1
 
 if (method=='Monte Carlo 1'):
+	from numpy import *
+	vf=vectorize(f)
 	n=int(input('Number of partitions for Monte Carlo: '))
 	m=int(input('Number of points per partition: '))
 	print('')
@@ -104,9 +106,22 @@ if (method=='Monte Carlo 1'):
 # Monte Carlo 2
 
 if (method=='Monte Carlo 2'):
+	from numpy import *
+	vf=vectorize(f)
 	n=int(input('Number of dots for Monte Carlo: '))
 	print('')
 	t1=time()
 	print('Result: %f'%(MonteCarlo2(n)))
 	print('Total calculation time: %f'%(time()-t1))
 
+# SymPy
+
+if (method=="SymPy Symbolic Integration"):
+	from sympy import *
+	x=symbols('x')
+	g=eval(function_string)
+	t1=time()
+	G=integrate(g,x)
+	print("Indefinite integral",G)
+	print("Definite integral",G.subs(x,end)-G.subs(x,start))
+	print("Total calculation time: %f"%(time()-t1))
