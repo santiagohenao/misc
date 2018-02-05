@@ -52,6 +52,29 @@ def MonteCarlo2(j,k=100):
 			out_d+=1
 	return (in_d/(out_d+in_d))*h*(end-start)
 
+def exclude(ex,n,strt=0,stp=1):
+	'''
+	Gives an Integer iterator [0,ex)U(ex,n)
+	'''
+	return [q for q in range(strt,n,stp) if q!=ex]
+
+def PC(j):
+	'''
+	Polinomial Coefficient
+	'''
+	p=1
+	for m in exclude(j,k):
+		p*=(x-xp[m])/(xp[j]-xp[m])
+	return p
+
+def LS():
+	'''
+	Lagrange Sums
+	'''
+	p=0
+	for i in range(k):
+		p+=yp[i]*PC(i)
+	return p
 
 # Inputs
 
@@ -66,7 +89,7 @@ if (start==end):
 # Pick Method
 
 title = 'Select an Integration Method: '
-options = ['Riemman sums','Trapezoid Rule','Monte Carlo 1','Monte Carlo 2',"SymPy Symbolic Integration"] # Lagrange Polynomial Interpolation
+options = ['Riemman sums','Trapezoid Rule','Monte Carlo 1','Monte Carlo 2',"SymPy Symbolic Integration", "Lagrange Polynomial Interpolation"]
 method, indexp = pick(options, title)
 print('Method Selected: %s'%(method))
 
@@ -125,3 +148,29 @@ if (method=="SymPy Symbolic Integration"):
 	print("Indefinite integral",G)
 	print("Definite integral",G.subs(x,end)-G.subs(x,start))
 	print("Total calculation time: %f"%(time()-t1))
+
+# Lagrange
+
+if (method=="Lagrange Polynomial Interpolation"):
+	from sympy import *
+	x=symbols('x')
+	g=eval(function_string)
+	t1=time()
+	
+	k=int(input("Degree of each Lagrange Polynomial Interpolation: "))
+	from numpy import linspace,vectorize
+	xp=linspace(start,end,k+1)
+	def gfunc(x):
+		return eval(str(g))
+	vgfunc=vectorize(gfunc)
+	yp=vgfunc(xp)
+	pol_string=str(expand(LS()))
+	def pol(x):
+		return eval(pol_string)
+	import matplotlib.pyplot as plt
+	space=linspace(start,end,100)
+	plt.figure()
+	plt.plot(space,vgfunc(linspace(start,end,100)))
+	plt.plot(space,list(map(pol,space)))
+	plt.scatter(xp,list(map(pol,xp)))
+	plt.show()
